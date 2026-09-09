@@ -81,6 +81,10 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+<<<<<<< HEAD
+=======
+.output
+>>>>>>> 132ff8250b098ebf7262047be58ca2e422df00e8
 
 # Gatsby files
 .cache/
@@ -91,9 +95,14 @@ dist
 # vuepress build output
 .vuepress/dist
 
+<<<<<<< HEAD
 # vuepress v2.x temp and cache directory
 .temp
 .cache
+=======
+# vuepress v2.x temp directory
+.temp
+>>>>>>> 132ff8250b098ebf7262047be58ca2e422df00e8
 
 # Sveltekit cache directory
 .svelte-kit/
@@ -125,6 +134,12 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
+<<<<<<< HEAD
+=======
+# pnpm
+.pnpm-store
+
+>>>>>>> 132ff8250b098ebf7262047be58ca2e422df00e8
 # yarn v3
 .pnp.*
 .yarn/*
@@ -134,6 +149,13 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
+<<<<<<< HEAD
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+=======
+# Vite files
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+.vite/
+>>>>>>> 132ff8250b098ebf7262047be58ca2e422df00e8
