@@ -403,8 +403,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ vars.abhinav0x }}
+          password: ${{ secrets.dckr_pat_qDFLT4p3mozuztCLD5ht4BVYPAY}}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
