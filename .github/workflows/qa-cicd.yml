@@ -7,7 +7,7 @@ on:
     paths:
       - 'client/**'
       - 'server/**'
-      - '.github/workflows/qa-cicd.yaml'
+      - '.github/workflows/qa-cicd.yml'
 
 jobs:
   gitleaks-scan:
@@ -27,7 +27,7 @@ jobs:
             --report-format=json \
             --report-path=/repo/gitleaks-report.json \
             --redact \
-            --exit-code 1
+            --exit-code 2
 
       - name: Upload Gitleaks report
         if: always()
