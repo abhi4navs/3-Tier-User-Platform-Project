@@ -392,7 +392,8 @@ jobs:
 
       - name: Build client
         run: npm run build --if-present
-docker:
+
+  docker:
     name: Docker Build & Push
     needs:
       - client-build
@@ -433,7 +434,7 @@ docker:
 
       - name: Run Trivy image scan (JSON)
         run: |
-          trivy image devopsshack/nodejs-app:${{ github.sha }} \
+          trivy image abhinav0x/nodejs.app:${{ github.sha }} \
             --format json \
             --output image-trivy-report.json \
             --severity HIGH,CRITICAL \
@@ -442,7 +443,7 @@ docker:
 
       - name: Run Trivy image scan (TABLE)
         run: |
-          trivy image devopsshack/nodejs-app:${{ github.sha }} \
+          trivy image abhinav0x/nodejs.app:${{ github.sha }} \
             --format table \
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
@@ -485,3 +486,78 @@ docker:
           tags: |
             abhinav0x/nodejs.app:${{ github.sha }}
             abhinav0x/nodejs.app:latest
+
+
+  update-qa-manifest:
+    name: Update QA Manifest
+    needs: docker
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout qa branch
+        uses: actions/checkout@v4
+        with:
+          ref: qa
+      - name: Update image tag in manifest
+        run: |
+          sed -i "s|image: devopsshack/nodejs-app:.*|image: devopsshack/nodejs-app:${GITHUB_SHA}|g" k8-manifests/qa/app-deployment.yaml
+      - name: Show updated manifest (debug)
+        run: |
+          cat k8-manifests/qa/app-deployment.yaml
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add k8-manifests/qa/app-deployment.yaml
+          git commit -m "Update QA image to ${GITHUB_SHA} [skip ci]" || echo "No changes to commit"
+          git push origin qa
+            
+  deploy-to-k8s:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: update-qa-manifest
+    env:
+      AWS_REGION: ap-south-1
+      EKS_CLUSTER_NAME: my-cluster
+      K8S_NAMESPACE: qa
+
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: qa   # ← explicitly pull latest qa, not the trigger SHA
+
+      - name: Configure AWS credentials from GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Generate kubeconfig for EKS
+        run: aws eks update-kubeconfig --region "${AWS_REGION}" --name "${EKS_CLUSTER_NAME}"
+
+      - name: Verify identity
+        run: |
+          aws sts get-caller-identity
+          kubectl config current-context
+
+      - name: Verify namespace access
+        run: |
+          kubectl get pods -n "${K8S_NAMESPACE}"
+          kubectl get services -n "${K8S_NAMESPACE}"
+          kubectl auth can-i create deployments -n "${K8S_NAMESPACE}"
+          kubectl auth can-i create services -n "${K8S_NAMESPACE}"
+          kubectl auth can-i create ingresses.networking.k8s.io -n "${K8S_NAMESPACE}"
+
+      - name: Deploy manifests
+        run: |
+          kubectl apply -f k8-manifests/qa/ -n "${K8S_NAMESPACE}"
+
+      - name: Verify rollout
+        run: |
+          kubectl rollout status deployment/nodejs-app -n "${K8S_NAMESPACE}" --timeout=180s
