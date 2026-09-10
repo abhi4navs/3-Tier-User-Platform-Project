@@ -10,7 +10,7 @@ on:
 permissions:
   contents: write
   id-token: write
-  
+
 jobs:
   gitleaks-scan:
     name: Gitleaks Scan
