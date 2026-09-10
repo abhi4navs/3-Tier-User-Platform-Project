@@ -1,3 +1,4 @@
+# Trigger Test-1
 name: Enterprise DevSecOps CICD Pipeline
 on:
   push:
@@ -333,7 +334,7 @@ jobs:
         run: npm test --if-present
         continue-on-error: true
 
-   sonarqube:
+  sonarqube:
     name: SonarQube Analysis & Quality Gate Check
     runs-on: ubuntu-latest
     needs:
@@ -560,7 +561,3 @@ jobs:
       - name: Verify rollout
         run: |
           kubectl rollout status deployment/nodejs-app -n "${K8S_NAMESPACE}" --timeout=180s
-
-      - name: Verify rollout
-        run: |
-          kubectl rollout status deployment/nodejs-app -n "${K8S_NAMESPACE}" --timeout=180s    
