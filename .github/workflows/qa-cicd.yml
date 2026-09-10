@@ -393,7 +393,7 @@ jobs:
       - name: Build client
         run: npm run build --if-present
 
-  docker:
+    docker:
     name: Docker Build & Push
     needs:
       - client-build
@@ -401,25 +401,25 @@ jobs:
 
     steps:
       - name: Login to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
-          username: ${{ vars.abhinav0x }}
-          password: ${{ secrets.dckr_pat_k17PKZibVJsAOEcipYIrdBmRXwQ}}
+          username: abhinav0x
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@v6
 
       - name: Build
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           load: true
           push: false
           tags: |
-            devopsshack/nodejs-app:${{ github.sha }}
-            devopsshack/nodejs-app:latest
+            abhinav0x/nodejs-app:${{ github.sha }}
+            abhinav0x/nodejs-app:latest
 
       - name: Install Trivy
         uses: aquasecurity/setup-trivy@v0.2.6
@@ -434,7 +434,7 @@ jobs:
 
       - name: Run Trivy image scan (JSON)
         run: |
-          trivy image devopsshack/nodejs-app:${{ github.sha }} \
+          trivy image abhinav0x/nodejs-app:${{ github.sha }} \
             --format json \
             --output image-trivy-report.json \
             --severity HIGH,CRITICAL \
@@ -443,7 +443,7 @@ jobs:
 
       - name: Run Trivy image scan (TABLE)
         run: |
-          trivy image devopsshack/nodejs-app:${{ github.sha }} \
+          trivy image abhinav0x/nodejs-app:${{ github.sha }} \
             --format table \
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
@@ -474,18 +474,18 @@ jobs:
       - name: Generate image SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: devopsshack/nodejs-app:${{ github.sha }}
+          image: abhinav0x/nodejs-app:${{ github.sha }}
           format: spdx-json
           output-file: image-sbom.spdx.json
-          upload-artifact: true  
-          
+          upload-artifact: true
+
       - name: Push
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: |
-            devopsshack/nodejs-app:${{ github.sha }}
-            devopsshack/nodejs-app:latest
+            abhinav0x/nodejs-app:${{ github.sha }}
+            abhinav0x/nodejs-app:latest
 
 
   update-qa-manifest:
