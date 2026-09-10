@@ -8,21 +8,28 @@ on:
       - 'client/**'
       - 'server/**'
       - '.github/workflows/qa-cicd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   gitleaks-scan:
     name: Gitleaks Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run Gitleaks Scan
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/repo" \
-            zricethezav/gitleaks:latest detect \
+            ghcr.io/gitleaks/gitleaks:v8.18.4 detect \
             --source=/repo \
             --report-format=json \
             --report-path=/repo/gitleaks-report.json \
