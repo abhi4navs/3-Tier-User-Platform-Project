@@ -876,18 +876,7 @@ This project follows the following security principles:
 
 ---
 
-# 👨‍💻 Author
 
-### Abhinav Kumar
-
-**B.Tech Computer Science & Engineering**
-
-```text
-DevOps • DevSecOps • AWS • Kubernetes
-Docker • CI/CD • Linux • Cloud-Native
-```
-
----
 
 <p align="center">
 
